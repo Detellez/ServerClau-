@@ -2,11 +2,35 @@
     'use strict';
 
     // ==========================================
-    // 🌐 EL ENRUTADOR INTELIGENTE V12
+    // 1. CONFIGURACIÓN Y ENRUTADOR INTELIGENTE V12 (DINÁMICO)
     // ==========================================
-    const CEREBRO_URL = 'https://script.google.com/macros/s/AKfycbz5bBK7rCjvovEXg6WbbWoe3YwNf041QITDQOKendc-qNGu_pP1YkrSXklQNkKPcoGXXg/exec';
-    
-    const API_URL = CEREBRO_URL;
+    const SERVERS_DB = {
+        'server-bm-xlph': 'https://script.google.com/macros/s/AKfycbzd0yXMyFtN3OMLb4bWlbvmifj2ENvQMhcJ_ZdSmuMAVQ6diTnPsAAyfxsDWcJFZpnv/exec',
+        'server-alejandra-zmr9': 'https://script.google.com/macros/s/AKfycbyitxqrbKSUDhOFHDWlk_fOih1gCIQ9jj4JNHm0YQg9qavl_ICbSWOSZjgy0dthb8o24A/exec',
+        'server-marcelo': 'https://script.google.com/macros/s/AKfycbwUR9Mcw0RvQvxI2ArwNhwucKd3GkPjcjsmNMnq4iVXnjkKkzdxNMN2KyxbAxrGTsrK/exec',
+        'server-alejandra-zmr9': 'https://script.google.com/macros/s/AKfycbyitxqrbKSUDhOFHDWlk_fOih1gCIQ9jj4JNHm0YQg9qavl_ICbSWOSZjgy0dthb8o24A/exec',
+        'server-inso': 'https://script.google.com/macros/s/AKfycbwRBmQk-FtHmzJAT4_VXNRO8Zh7g11jGjoYBYTCXf-S9zKIy8N3pn4cyJ5l5m6uBA/exec',
+        'server-al-t0': 'https://script.google.com/macros/s/AKfycbx2MmJpsF1jgwyhmH4AuYpOoRQKv4U6AEo9HQiDv7LxXx8TR3qNHFLczu1TyCMvCAsl/exec',
+        'server-al-t1': 'https://script.google.com/macros/s/AKfycbxsyFiCV1bhHvfPFXCANqN9Ce4ap-DtABPgqdZ_5H74NMwa_1tk1Y8FNzvfUvUkjBiLbQ/exec',
+        'server-melany': 'https://script.google.com/macros/s/AKfycbxar5ba7f-3jys7heqsWeJLCrYjipcIC6HspbzEP3AtgSLZlVPDPfImkFjNevXzCERLDA/exec',
+        'server-1uis': 'https://script.google.com/macros/s/AKfycbz8dYDMdw-5f7t-eSopmHn6zCvrFgxGIopCR_yROQerTYyyFJIWVBkFKgfs1NGn1W4x/exec',
+        'server-carmen': 'https://script.google.com/macros/s/AKfycbwmvvUWJhV8QkfrVjKJ0MMJAL9rdzJ3jFkSb-k5z9hzDpnwC5wiawPUesmQ2osMCwM/exec',
+        'server-diego': 'https://script.google.com/macros/s/AKfycbzsH7WaeIkOW9v5Nh3zTBX1T5KXx39yHCT892H_voYc_yktm1oifUY8VeGOTvdfmKgf/exec',
+        'server-gr-s1': 'https://script.google.com/macros/s/AKfycbzsH7WaeIkOW9v5Nh3zTBX1T5KXx39yHCT892H_voYc_yktm1oifUY8VeGOTvdfmKgf/exec'
+        
+    };
+
+    let CEREBRO_URL = null;
+    let API_URL = null;
+
+    // Obtener subdominio dinámicamente del localStorage de la web
+    const currentSubdomain = localStorage.getItem('serverSubdomain');
+    if (currentSubdomain && SERVERS_DB[currentSubdomain]) {
+        CEREBRO_URL = SERVERS_DB[currentSubdomain];
+        API_URL = CEREBRO_URL;
+    } else {
+        console.error("🚨 CRÍTICO: Ningún servidor GSheets configurado. Conexión bloqueada.");
+    }
 
     // 🛡️ LLAVE MAESTRA DE SEGURIDAD
     const SECURITY_TOKEN = 'SST_V12_CORP_SECURE_2026_X9';
