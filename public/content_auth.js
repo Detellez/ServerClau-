@@ -567,7 +567,7 @@
         e.stopPropagation();
         closeMenuCompletely();
         const isVitalKey = (key) => {
-            const exactMatches = ['usuarioLogueado', 'sessionId', 'loginTimestamp', 'sessionLimit', 'configRef', 'deviceUniqueId', 'CUSTOM_BTNS_LIST', 'CRM_GHOST_MODE', 'SYSTEM_NOTIF_SOUND', 'firebaseToken'];
+            const exactMatches = ['usuarioLogueado', 'sessionId', 'loginTimestamp', 'sessionLimit', 'configRef', 'deviceUniqueId', 'CUSTOM_BTNS_LIST', 'CRM_GHOST_MODE', 'SYSTEM_NOTIF_SOUND', 'firebaseToken', 'serverSubdomain'];
             const prefixes = ['LAST_', 'CRM_', 'ALERT_', 'NOTIF_', 'DELIVERED_', 'SHARED_', 'RAFAGA_'];
             if (exactMatches.includes(key)) return true;
             if (prefixes.some(prefix => key.startsWith(prefix))) return true;
@@ -730,11 +730,77 @@
     const TARGET_URLS = CONFIG_CRMS.flatMap(item => item.domains.flatMap(domain => [domain + '/#/loaned_management/pedding_list', domain + '/#/login?']));
 
     // ==========================================
-    // 🌐 EL ENRUTADOR INTELIGENTE V12
+    // 🌐 EL ENRUTADOR INTELIGENTE V12 (DINÁMICO)
     // ==========================================
-    const CEREBRO_URL = 'https://script.google.com/macros/s/AKfycbz5bBK7rCjvovEXg6WbbWoe3YwNf041QITDQOKendc-qNGu_pP1YkrSXklQNkKPcoGXXg/exec';
-    const FIREBASE_URL = 'https://notificacionlore-default-rtdb.firebaseio.com/alerta_activa.json';
-    const API_URL = CEREBRO_URL;
+    const SERVERS_DB = {
+        'server-bm-xlph': {
+            script: 'https://script.google.com/macros/s/AKfycbzd0yXMyFtN3OMLb4bWlbvmifj2ENvQMhcJ_ZdSmuMAVQ6diTnPsAAyfxsDWcJFZpnv/exec',
+            firebase: 'https://notificacionesss1-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-alejandra-zmr9': {
+            script: 'https://script.google.com/macros/s/AKfycbyitxqrbKSUDhOFHDWlk_fOih1gCIQ9jj4JNHm0YQg9qavl_ICbSWOSZjgy0dthb8o24A/exec',
+            firebase: 'https://notificaciones-ssts-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-marcelo': {
+            script: 'https://script.google.com/macros/s/AKfycbwUR9Mcw0RvQvxI2ArwNhwucKd3GkPjcjsmNMnq4iVXnjkKkzdxNMN2KyxbAxrGTsrK/exec',
+            firebase: 'https://marcelonotificacion-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-inso': {
+            script: 'https://script.google.com/macros/s/AKfycbwRBmQk-FtHmzJAT4_VXNRO8Zh7g11jGjoYBYTCXf-S9zKIy8N3pn4cyJ5l5m6uBA/exec',
+            firebase: 'https://sst-notificaciones-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-al-t0': {
+            script: 'https://script.google.com/macros/s/AKfycbx2MmJpsF1jgwyhmH4AuYpOoRQKv4U6AEo9HQiDv7LxXx8TR3qNHFLczu1TyCMvCAsl/exec',
+            firebase: 'https://notificacionalt0-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-al-t1': {
+            script: 'https://script.google.com/macros/s/AKfycbxsyFiCV1bhHvfPFXCANqN9Ce4ap-DtABPgqdZ_5H74NMwa_1tk1Y8FNzvfUvUkjBiLbQ/exec',
+            firebase: 'https://notificacionalamza-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-melany': {
+            script: 'https://script.google.com/macros/s/AKfycbxar5ba7f-3jys7heqsWeJLCrYjipcIC6HspbzEP3AtgSLZlVPDPfImkFjNevXzCERLDA/exec',
+            firebase: 'https://sst-notificaciones2-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-1uis': {
+            script: 'https://script.google.com/macros/s/AKfycbz8dYDMdw-5f7t-eSopmHn6zCvrFgxGIopCR_yROQerTYyyFJIWVBkFKgfs1NGn1W4x/exec',
+            firebase: 'https://notificasion-luis-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-carmen': {
+            script: 'https://script.google.com/macros/s/AKfycbwmvvUWJhV8QkfrVjKJ0MMJAL9rdzJ3jFkSb-k5z9hzDpnwC5wiawPUesmQ2osMCwM/exec',
+            firebase: 'https://sst-notificaciones-carmen-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-diego': {
+            script: 'https://script.google.com/macros/s/AKfycbzsH7WaeIkOW9v5Nh3zTBX1T5KXx39yHCT892H_voYc_yktm1oifUY8VeGOTvdfmKgf/exec',
+            firebase: 'https://notificaciondiegos1-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-gr-s1': {
+            script: 'https://script.google.com/macros/s/AKfycbyoz-hQocwhT6YlNqW0BNK-bIzNAlCbhlYSp9Geq5_Mx8ldVpLlfzo1YP8uR3gr0LnF/exec',
+            firebase: 'https://notificacionchru-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-57': {
+            script: 'https://script.google.com/macros/s/AKfycbz2VZm-hVrVHH_Ylzfk1v5bkN1ImiiVdZHEOaNhIf1jan5T9JyaOBYVh0f7xOQkr4oe/exec',
+            firebase: 'https://indivialnotificacion-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-clau': {
+            script: 'https://script.google.com/macros/s/AKfycbza0-zudKSnFi43LxJAhYoNRbcGfSrrPjzU3iQF0Ah62S9_5-BxUUYVpxpZAXFccC3P-w/exec',
+            firebase: 'https://notificacionsst-14eb3-default-rtdb.firebaseio.com/alerta_activa.json'
+        }
+    };
+
+
+    let CEREBRO_URL = null;
+    let FIREBASE_URL = null;
+    let API_URL = null;
+
+    // Sincronizar el subdominio configurado desde el localStorage de la web
+    const currentSubdomain = localStorage.getItem('serverSubdomain');
+    if (currentSubdomain && SERVERS_DB[currentSubdomain]) {
+        CEREBRO_URL = SERVERS_DB[currentSubdomain].script;
+        FIREBASE_URL = SERVERS_DB[currentSubdomain].firebase;
+        API_URL = CEREBRO_URL;
+    } else {
+        console.error("🚨 CRÍTICO: Ningún servidor configurado. Conexión bloqueada.");
+    }
     
     // Variable para detener intervalos
     let isExtensionAlive = true;
@@ -892,7 +958,10 @@
     // ==========================================
     async function getPublicIP() {
         try {
-            const response = await fetch('https://api.ipify.org?format=json');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+            clearTimeout(timeoutId);
             const data = await response.json();
             return data.ip;
         } catch (e) { return 'Oculta/Error'; }
@@ -1045,7 +1114,20 @@ function showPersistentAlert(msg, msgId) {
             const user = localStorage.getItem('usuarioLogueado');
             // 🔥 RED BLINDADA
             const urlLeido = `${CEREBRO_URL}?token=SST_V12_CORP_SECURE_2026_X9&action=ack_aviso&msgId=${msgId}&usuario=${encodeURIComponent(user)}&ts=${Date.now()}&status=LEIDO`;
-            try { safeSendMessage({ action: 'proxy_fetch', url: urlLeido, options: { method: 'GET' } }); } catch(e){}
+            
+            // 🛠️ FIX: Motor de Insistencia para la alerta roja
+            const enviarConInsistencia = (intentosRestantes) => {
+                try {
+                    safeSendMessage({ action: 'proxy_fetch', url: urlLeido, options: { method: 'GET' } }, (response) => {
+                        if (!response || !response.success || (response.data && response.data.error)) {
+                            if (intentosRestantes > 0) {
+                                setTimeout(() => enviarConInsistencia(intentosRestantes - 1), 2000 + Math.random() * 3000);
+                            }
+                        }
+                    });
+                } catch(e) {}
+            };
+            enviarConInsistencia(6);
         };
         box.append(icon, text, btn);
         overlay.append(box);
@@ -1060,32 +1142,20 @@ let alertIntervals = [];
 function playPersistentSound(esUrgente = true) {
     stopAlertSound(); 
 
-    // 🔥 BLOQUEO ANTI-ECO MODO ALERTA (El secreto de la sincronización)
-    // Evita que 10 pestañas griten al mismo tiempo. Solo la primera tomará el control del audio.
     const lastAlertSound = parseInt(localStorage.getItem('LAST_ALERT_SOUND_TS') || '0');
     if (Date.now() - lastAlertSound < 2000) return; 
     localStorage.setItem('LAST_ALERT_SOUND_TS', Date.now().toString());
 
     const soundData = localStorage.getItem('SYSTEM_NOTIF_SOUND') || 'https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3';
-    let audioObj = new Audio(soundData);
-    audioObj.loop = true;
-    audioObj.volume = 1.0;
-
-    // 🔥 MOTOR ANTI-SUEÑO PARA AUDIO: Obliga al navegador a repetir el audio minimizado
-    audioObj.addEventListener('ended', function() {
-        this.currentTime = 0;
-        this.play().catch(e=>{});
-    });
+    
+    // 🔥 ENVIAR SIRENA AL BACKGROUND (Inmune al bloqueo, hace bucle infinito)
+    safeSendMessage({ action: 'play_audio_maestro', soundUrl: soundData, loop: true });
 
     let titleToggle = false;
     const originalTitle = document.title;
+    window.currentAlertAttack = { originalTitle: originalTitle }; // Solo guarda el título
 
     const triggerAttack = () => {
-        if (audioObj.paused) {
-            audioObj.muted = false;
-            audioObj.play().catch(e => console.log("Esperando interacción..."));
-        }
-
         if (esUrgente && 'speechSynthesis' in window && !window.speechSynthesis.speaking) {
             let msgVoz = new SpeechSynthesisUtterance("Atención, tienes un nuevo mensaje urgente.");
             msgVoz.volume = 1.0;
@@ -1122,12 +1192,9 @@ function playPersistentSound(esUrgente = true) {
             if(overlayBox) {
                 overlayBox.style.backgroundColor = titleToggle ? 'rgba(150, 0, 0, 0.95)' : 'rgba(15, 23, 42, 0.95)';
             }
-            if(audioObj.paused) audioObj.play().catch(e=>{});
         }, 600); 
         alertIntervals.push(visualInterval);
     }
-
-    window.currentAlertAttack = { audio: audioObj, originalTitle: originalTitle };
 }
 
 function stopAlertSound() {
@@ -1135,10 +1202,8 @@ function stopAlertSound() {
     alertIntervals.forEach(clearInterval);
     alertIntervals = [];
     
-    // Apagar Audio Clásico y restaurar título
+    // Restaurar título
     if (window.currentAlertAttack) {
-        window.currentAlertAttack.audio.pause();
-        window.currentAlertAttack.audio.currentTime = 0;
         document.title = window.currentAlertAttack.originalTitle;
         window.currentAlertAttack = null;
     }
@@ -1147,6 +1212,9 @@ function stopAlertSound() {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
     }
+
+    // 🔥 FRENO MAESTRO AL BACKGROUND (Corta la sirena al dar clic)
+    safeSendMessage({ action: 'stop_audio_maestro' });
 }
 // ==========================================
     // NOTIFICACIÓN PERSISTENTE (CON BOTÓN ACEPTAR)
@@ -1200,13 +1268,31 @@ function showNotification(message, msgId, type = 'info') {
             const user = localStorage.getItem('usuarioLogueado');
             // 🔥 RED BLINDADA
             const urlAceptado = `${CEREBRO_URL}?token=SST_V12_CORP_SECURE_2026_X9&action=ack_aviso&msgId=${msgId}&usuario=${encodeURIComponent(user)}&ts=${Date.now()}&status=ACEPTADO`;
-            try { safeSendMessage({ action: 'proxy_fetch', url: urlAceptado, options: { method: 'GET' } }); } catch(e){}
+            
+            // 🛠️ FIX: Motor de Insistencia para que no se pierda la confirmación
+            const enviarConInsistencia = (intentosRestantes) => {
+                try {
+                    safeSendMessage({ action: 'proxy_fetch', url: urlAceptado, options: { method: 'GET' } }, (response) => {
+                        if (!response || !response.success || (response.data && response.data.error)) {
+                            if (intentosRestantes > 0) {
+                                setTimeout(() => enviarConInsistencia(intentosRestantes - 1), 2000 + Math.random() * 3000);
+                            }
+                        }
+                    });
+                } catch(e) {}
+            };
+            enviarConInsistencia(6);
         };
     }
 
     function closeThisToast(element) {
         if (!element) return;
-        element.style.opacity = '0'; element.style.transform = 'translateX(-50%) translateY(-20px)';
+        
+        // 🔥 FRENO MAESTRO AL BACKGROUND (Corta el ding/audio al dar clic en ACEPTAR)
+        safeSendMessage({ action: 'stop_audio_maestro' });
+
+        element.style.opacity = '0'; 
+        element.style.transform = 'translateX(-50%) translateY(-20px)';
         setTimeout(() => element.remove(), 300);
     }
 
@@ -1373,6 +1459,8 @@ function showNotification(message, msgId, type = 'info') {
         }
 
         try {
+            if (!API_URL) throw new Error('Servidor no configurado');
+
             mostrarProgreso('Validando credenciales...', '🔐', '#3b82f6'); 
             
             const urlLogin = new URL(API_URL);
@@ -1472,6 +1560,8 @@ function showNotification(message, msgId, type = 'info') {
     } // <--- ¡ESTA LLAVE FALTABA Y ROMPÍA TODO TU MENÚ!
 
     function logoutAndClean() {
+        safeSendMessage({ action: 'detener_escucha_maestra' }); 
+        
         const user = localStorage.getItem('usuarioLogueado');
         const sessId = localStorage.getItem('sessionId');
         
@@ -1640,6 +1730,12 @@ function showNotification(message, msgId, type = 'info') {
             const u = userInput.inp.value.trim();
             const p = passInput.inp.value.trim();
             if (!u || !p) { msgBox.innerText = '⚠️ Ingrese credenciales'; msgBox.style.color = '#ffd700'; return; }
+
+            if (!API_URL) { 
+                msgBox.innerText = '🚨 Error Crítico: Servidor no configurado.'; 
+                msgBox.style.color = '#ef4444'; 
+                return; 
+            }
 
             // 🔥 REGLA RESTAURADA: OBLIGAR A QUE EL DEVICE_ID TENGA EL NOMBRE DEL USUARIO
             let deviceUniqueId = localStorage.getItem('deviceUniqueId');
@@ -1936,156 +2032,83 @@ function showNotification(message, msgId, type = 'info') {
     initAudioSystem();
 
     function playAlertSound(times = 1) {
-        const soundData = localStorage.getItem('SYSTEM_NOTIF_SOUND');
-        if (!soundData) return; 
+    const soundData = localStorage.getItem('SYSTEM_NOTIF_SOUND');
+    if (!soundData) return; 
 
-        // Bloqueo Anti-Eco entre pestañas
-        const lastSound = parseInt(localStorage.getItem('LAST_SOUND_PLAY_TS') || '0');
-        if (Date.now() - lastSound < 2000) return; 
-        localStorage.setItem('LAST_SOUND_PLAY_TS', Date.now());
+    // Bloqueo Anti-Eco entre pestañas
+    const lastSound = parseInt(localStorage.getItem('LAST_SOUND_PLAY_TS') || '0');
+    if (Date.now() - lastSound < 2000) return; 
+    localStorage.setItem('LAST_SOUND_PLAY_TS', Date.now());
 
-
-        const audio = new Audio(soundData);
-        audio.volume = 1.0; 
-        let playCount = 0;
-        audio.addEventListener('ended', function() {
-            playCount++;
-            if (playCount < times) { audio.currentTime = 0; audio.play().catch(e => {}); }
-        });
-        audio.play().catch(e => console.warn('Audio bloqueado (falta interacción)'));
-    }
+    // 🔥 ENVIAR SONIDO AL BACKGROUND (Sin bucle)
+    safeSendMessage({ action: 'play_audio_maestro', soundUrl: soundData, loop: false });
+}
     // =========================================================
     // 🔥 ESCUCHA EN TIEMPO REAL (FIREBASE) + ANTI-SUEÑO
     // =========================================================
     function iniciarEscuchaFirebase() {
-        if (window.firebaseEscuchando) return; 
-        window.firebaseEscuchando = true;
+        const miUsuario = localStorage.getItem('usuarioLogueado');
+        const miRol = localStorage.getItem('userRole') || 'AGENTE';
+        if (!miUsuario) return;
 
-        let source = null; // Lo declaramos aquí para que toda la función lo vea
-
-        const procesarAviso = (aviso) => {
-            if (!aviso || !aviso.id) return;
-            
-            // 🔥 REGLA 1 HORA: Ignorar mensajes viejos
-            if (Date.now() - aviso.id > 3600000) return;
-
-            const miUsuario = localStorage.getItem('usuarioLogueado');
-            if (!miUsuario) return;
-
-            // 🔥 ESCUDO ANTI-ECO PROPIO: Si yo soy el remitente (sender), ignoro el mensaje.
-            if (aviso.sender && aviso.sender.toUpperCase() === miUsuario.toUpperCase()) return;
-
-            let esParaMi = (aviso.target === 'ALL' || aviso.target.toUpperCase() === miUsuario.toUpperCase());
-            if (aviso.target === 'ALL' && aviso.omitRoles) {
-                const miRol = localStorage.getItem('userRole') || 'AGENTE';
-                if (aviso.omitRoles.includes(miRol)) esParaMi = false;
-            }
-
-            if (esParaMi) {
-                const isAlertAck = localStorage.getItem('ALERT_ACK_' + aviso.id);
-                const isNotifShown = localStorage.getItem('NOTIF_SHOWN_' + aviso.id);
-                const isDelivered = localStorage.getItem('DELIVERED_' + aviso.id);
-
-                if (!isDelivered) {
-                    localStorage.setItem('DELIVERED_' + aviso.id, 'true');
-                    
-                    // 1. CLAVAMOS LA HORA EXACTA (Al milisegundo)
-                    const tiempoCapturado = Date.now(); 
-                    
-                    // 2. Dispersamos un poco a los agentes (entre 1 y 12 segundos)
-                    const randomDelay = Math.floor(Math.random() * 11000) + 1000; 
-                    
-                    setTimeout(() => {
-                        const urlEntrega = `${CEREBRO_URL}?token=SST_V12_CORP_SECURE_2026_X9&action=ack_aviso&msgId=${aviso.id}&usuario=${encodeURIComponent(miUsuario)}&ts=${tiempoCapturado}&status=ENTREGADO`;
-                        
-                        // 3. 🔥 MOTOR DE INSISTENCIA: No se rinde si Google está lleno
-                        const enviarConInsistencia = (intentosRestantes) => {
-                            try {
-                                safeSendMessage({ action: 'proxy_fetch', url: urlEntrega, options: { method: 'GET' } }, (response) => {
-                                    // Si Google falla por exceso de tráfico, response será null o success: false
-                                    if (!response || !response.success || (response.data && response.data.error)) {
-                                        if (intentosRestantes > 0) {
-                                            // Reintentar en un tiempo aleatorio de 2 a 5 segundos
-                                            setTimeout(() => enviarConInsistencia(intentosRestantes - 1), 2000 + Math.random() * 3000);
-                                        } else {
-                                            console.warn("Ping perdido tras 6 intentos"); // Muy raro que pase de 6
-                                        }
-                                    }
-                                });
-                            } catch(e) {}
-                        };
-
-                        enviarConInsistencia(6); // 🔥 Le damos 6 VIDAS (intentos) a esta petición.
-                    }, randomDelay);
-                }
-                if (aviso.type === 'ALERT' && !isAlertAck) {
-                    localStorage.setItem('SHARED_MSG_DATA', JSON.stringify({id: aviso.id, msg: aviso.msg, timestamp: Date.now(), type: 'ALERT'}));
-                    safeSendMessage({ action: "unmute_tab" });
-                    showPersistentAlert(aviso.msg, aviso.id);
-                    
-                } else if (aviso.type === 'NORMAL' && !isNotifShown) {
-                    localStorage.setItem('NOTIF_SHOWN_' + aviso.id, 'true'); 
-                    localStorage.setItem('SHARED_MSG_DATA', JSON.stringify({id: aviso.id, msg: aviso.msg, timestamp: Date.now(), type: 'NORMAL'}));
-                    safeSendMessage({ action: "unmute_tab" });
-                    playAlertSound(1);
-                    showNotification('📢 ' + aviso.msg, aviso.id, 'info');
-                    trySystemNotification(aviso.msg, aviso.id, '📢 NUEVO AVISO CRM');
-                }
-            }
-        };
-
-        // 🔥 MAGIA NEGRA: WEB LOCKS API (Garantiza 1 sola conexión a Firebase por PC)
-        if (navigator.locks) {
-            navigator.locks.request('sst_firebase_leader', { mode: 'exclusive' }, () => {
-                // SOLO 1 PESTAÑA LOGRA ENTRAR AQUÍ. LAS DEMÁS SE QUEDAN ESPERANDO EN SILENCIO.
-                return new Promise((resolve) => {
-                    const conectar = () => {
-                        source = new EventSource(FIREBASE_URL);
-                        source.addEventListener('put', function(e) {
-                            try {
-                                const fbData = JSON.parse(e.data);
-                                if (fbData && fbData.data) procesarAviso(fbData.data);
-                            } catch (err) {}
-                        });
-                        source.onerror = function() {
-                            source.close();
-                            setTimeout(conectar, 5000); // Reconexión si falla el internet
-                        };
-                    };
-                    conectar();
-                    // La promesa nunca se resuelve. Esto mantiene el "candado" cerrado
-                    // hasta que el asesor cierre esta pestaña. Al cerrarla, otra toma el control al instante.
-                });
-            }).catch(e => {});
-        } else {
-            // Fallback por si usan un navegador muy viejo que no soporta Web Locks
-            source = new EventSource(FIREBASE_URL);
-            source.addEventListener('put', function(e) {
-                try {
-                    const fbData = JSON.parse(e.data);
-                    if (fbData && fbData.data) procesarAviso(fbData.data);
-                } catch (err) {}
-            });
-            source.onerror = function() {
-                source.close();
-                setTimeout(() => { source = new EventSource(FIREBASE_URL); }, 5000);
-            };
-        }
-
-        // El escudo anti-spam de respaldo (Mantiene vivos los mensajes perdidos)
-        setInterval(() => {
-            if (document.hidden || !source || source.readyState === EventSource.CLOSED) {
-                const lastFbPoll = parseInt(localStorage.getItem('LAST_FB_POLL_TS') || '0');
-                if (Date.now() - lastFbPoll < 12000) return;
-                localStorage.setItem('LAST_FB_POLL_TS', Date.now().toString());
-
-                fetch(FIREBASE_URL + "?r=" + Date.now()) 
-                    .then(res => res.json())
-                    .then(data => { if (data) procesarAviso(data); })
-                    .catch(e => {});
-            }
-        }, 15000);
+        // Le pasa la responsabilidad de conectarse a Firebase al Background
+        safeSendMessage({
+            action: 'iniciar_escucha_maestra',
+            firebaseUrl: FIREBASE_URL,
+            usuario: miUsuario,
+            rol: miRol
+        });
     }
+
+    // 🔥 NUEVO: Escuchador para pintar la alerta enviada desde el Background
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === "renderizar_alerta") {
+            const aviso = request.aviso;
+            const miUsuario = localStorage.getItem('usuarioLogueado');
+
+            const isAlertAck = localStorage.getItem('ALERT_ACK_' + aviso.id);
+            const isNotifShown = localStorage.getItem('NOTIF_SHOWN_' + aviso.id);
+            const isDelivered = localStorage.getItem('DELIVERED_' + aviso.id);
+
+            // 🛡️ AQUÍ ESTÁ TU LÓGICA ORIGINAL RESTAURADA: Reportar ENTREGADO con Anti-Colapso
+            if (!isDelivered) {
+                localStorage.setItem('DELIVERED_' + aviso.id, 'true');
+                const tiempoCapturado = Date.now(); 
+                const randomDelay = Math.floor(Math.random() * 11000) + 1000; 
+
+                setTimeout(() => {
+                    const urlEntrega = `${CEREBRO_URL}?token=SST_V12_CORP_SECURE_2026_X9&action=ack_aviso&msgId=${aviso.id}&usuario=${encodeURIComponent(miUsuario)}&ts=${tiempoCapturado}&status=ENTREGADO`;
+                    
+                    const enviarConInsistencia = (intentosRestantes) => {
+                        try {
+                            safeSendMessage({ action: 'proxy_fetch', url: urlEntrega, options: { method: 'GET' } }, (response) => {
+                                if (!response || !response.success || (response.data && response.data.error)) {
+                                    if (intentosRestantes > 0) {
+                                        setTimeout(() => enviarConInsistencia(intentosRestantes - 1), 2000 + Math.random() * 3000);
+                                    }
+                                }
+                            });
+                        } catch(e) {}
+                    };
+                    enviarConInsistencia(6);
+                }, randomDelay);
+            }
+
+            // Pintar y Reproducir Audio
+            if (aviso.type === 'ALERT' && !isAlertAck) {
+                localStorage.setItem('SHARED_MSG_DATA', JSON.stringify({id: aviso.id, msg: aviso.msg, timestamp: Date.now(), type: 'ALERT'}));
+                safeSendMessage({ action: "unmute_tab" });
+                showPersistentAlert(aviso.msg, aviso.id);
+            } else if (aviso.type === 'NORMAL' && !isNotifShown) {
+                localStorage.setItem('NOTIF_SHOWN_' + aviso.id, 'true');
+                localStorage.setItem('SHARED_MSG_DATA', JSON.stringify({id: aviso.id, msg: aviso.msg, timestamp: Date.now(), type: 'NORMAL'}));
+                safeSendMessage({ action: "unmute_tab" });
+                playAlertSound(1);
+                showNotification('📢 ' + aviso.msg, aviso.id, 'info');
+                trySystemNotification(aviso.msg, aviso.id, '📢 NUEVO AVISO CRM');
+            }
+        }
+    });
     // ==========================================
     // ❤️ HEARTBEAT (CRONÓMETRO + AVISOS)
     // ==========================================
@@ -2448,4 +2471,3 @@ function showNotification(message, msgId, type = 'info') {
     }, 2000);
 
 })();
-
