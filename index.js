@@ -15,7 +15,7 @@ app.use(cors());
 // ==========================================
 app.use((req, res, next) => {
     // 1. LA CONTRASEÑA REAL (La extensión ya la decodificó antes de enviarla)
-    const CLAVE_MAESTRA = 'CRM_PROTEGIDO_2025';
+    const CLAVE_MAESTRA = 'CRM_123456789_CRM';
 
     // 2. Si es la página de inicio '/', dejamos pasar (Para UptimeRobot)
     if (req.path === '/') return next();
