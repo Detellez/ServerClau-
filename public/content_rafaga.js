@@ -67,15 +67,20 @@
             input:checked + .slider-mora { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
             input:checked + .slider-mora:before { transform: translateX(16px); }
             .label-mora { font-size: 11px; font-weight: 800; cursor: pointer; user-select: none; transition: 0.3s; letter-spacing: 0.5px; }
+            
+            /* 🔥 SCROLL PARA PANELES DE FILTROS 🔥 */
+            .scroll-filtros::-webkit-scrollbar { width: 6px; }
+            .scroll-filtros::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.7); border-radius: 4px; margin: 2px; }
+            .scroll-filtros::-webkit-scrollbar-thumb { background: #8b5cf6; border-radius: 4px; }
+            .scroll-filtros::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
 
             /* 🔥 MODAL PRE-FILTRO MANAGER 🔥 */
             .pf-seccion { margin-bottom: 12px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
             .pf-titulo { font-size: 12px; color: #93c5fd; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
             .pf-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-
             .btn-isrepay { background: rgba(57, 255, 20, 0.05); color: #34d399; border: 1px solid #34d399; border-radius: 4px; padding: 4px 16px; font-size: 13px; font-weight: bold; cursor: pointer; outline: none; transition: 0.3s; opacity: 0.5; }
             .btn-isrepay.active { opacity: 1; color: #39ff14; border-color: #39ff14; background: rgba(57, 255, 20, 0.15); box-shadow: 0 0 10px rgba(57, 255, 20, 0.6); text-shadow: 0 0 5px rgba(57, 255, 20, 0.8); }
-            
+
             /* 🔥 NUEVOS ESTILOS PARA EDICIÓN DE CORREOS 🔥 */
             .correo-celda { cursor: pointer; padding: 3px 6px; border-radius: 4px; transition: 0.2s; display: inline-block; min-width: 60px; font-weight: bold; }
             .correo-alerta { background-color: #f97316 !important; color: white !important; box-shadow: 0 0 5px rgba(249,115,22,0.5); }
@@ -268,7 +273,6 @@
             const registrosUnicos = Array.from(unicosMap.values());
 
             const renderUI = () => {
-                // 🔥 CASCADA ADN: Filtrando opciones disponibles basándonos en registros purificados
                 let baseParaCuentas = registrosUnicos;
                 if (selEtapas.length > 0) {
                     baseParaCuentas = registrosUnicos.filter(r => selEtapas.includes(r.stageName || 'SIN ETAPA'));
@@ -296,24 +300,19 @@
                     const rFecha = c.openTime ? String(c.openTime).split(' ')[0] : 'SIN FECHA';
                     const rRepay = String(c.isRepay).toLowerCase() === 'true';
 
-                    // 1. Etapa (ADN Estricto / AND)
                     if (selEtapas.length > 0 && !selEtapas.includes(rEtapa)) return false;
-
-                    // 2. Cuenta (ADN Estricto / AND)
                     if (selCuentas.length > 0 && !selCuentas.includes(rCuenta)) return false;
 
                     const tieneFechas = selFechas.length > 0;
                     const tieneMoras = selMoras.length > 0;
                     const tieneRepay = isRepayActive;
 
-                    // Si no tocaste los filtros sumatorios, pasan todos los que sobrevivieron a Etapa+Cuenta
                     if (!tieneFechas && !tieneMoras && !tieneRepay) return true;
 
                     const coincideFecha = tieneFechas && selFechas.includes(rFecha);
                     const coincideMora = tieneMoras && selMoras.includes(rMora);
                     const coincideRepay = tieneRepay && rRepay;
 
-                    // 3. Sumatorio de atributos (OR)
                     return coincideFecha || coincideMora || coincideRepay; 
                 }).length;
 
@@ -400,11 +399,7 @@
                 modal.querySelector('#pf-btn-procesar').onclick = () => {
                     overlay.remove();
                     resolve({
-                        etapas: selEtapas,
-                        cuentas: selCuentas,
-                        moras: selMoras,
-                        fechas: selFechas,
-                        soloIsRepay: isRepayActive
+                        etapas: selEtapas, cuentas: selCuentas, moras: selMoras, fechas: selFechas, soloIsRepay: isRepayActive
                     });
                 };
             };
@@ -436,7 +431,7 @@
         if (btnExtraer) { btnExtraer.innerText = '⚡Extraer Todo⚡'; btnExtraer.disabled = false; }
     };
 
-    async function iniciarExtraccionAPI(esModoManager = true) {
+    async function iniciarExtraccionAPI(esModoManager = false) {
         if (window.location.href.includes('/login')) {
             return mostrarAviso('Inicia sesión en el CRM primero.', '#ef4444', 'error');
         }
@@ -444,16 +439,15 @@
         const inputToken = document.getElementById('input-token-api');
         if (!inputToken) return;
 
-        // 🔥 AUTO-REFRESH DEL TOKEN DESDE LAS COOKIES (NUEVO) 🔥
+        // 🔥 AUTO-REFRESH DEL TOKEN DESDE LAS COOKIES 🔥
         const tokenFresco = obtenerTokenAutomatico();
         if (tokenFresco) {
-            inputToken.value = tokenFresco; 
+            inputToken.value = tokenFresco;
         }
 
         const tokenRaw = inputToken.value.trim();
-        if (!tokenRaw) return mostrarAviso('⚠️ Por favor, pega el Token primero', '#fbbf24', 'warning');
+        if (!tokenRaw) return mostrarAviso('⚠️ No se encontró Token. Recarga la página o inicia sesión.', '#fbbf24', 'warning');
         
-        // 🔥 CAMBIO CLAVE: Usamos 'let' para permitir su auto-actualización (NUEVO) 🔥
         let token = decodeURIComponent(tokenRaw);
         const baseUrl = window.location.origin; 
         const countryInfo = getCountryInfo(); 
@@ -472,7 +466,6 @@
         const maxPagesPerRun = 20;
         let todosLosRegistrosBrutos = [];
         
-        // 🔥 CLAVE: Modo Manager busca por etapas para los filtros. Extraer Todo tira un solo escaneo global directo.
         const etapasIterar = esModoManager ? [-1, 0, 1, 2, 3, 4, 5, 6, 7] : [null]; 
 
         mostrarAviso(`Buscando cuentas en ${countryInfo.name}...`, '#3b82f6', 'info');
@@ -485,12 +478,8 @@
                 while (true) {
                     try {
                         const listUrl = `${baseUrl}/api/manage/urge/task/waitUrgeTaskPage?v=${Date.now()}`;
-                        
-                        // Configuramos los parámetros JSON dinámicamente
                         let bodyParams = { current: page, size: pageSize };
-                        if (sId !== null) {
-                            bodyParams.stageId = sId;
-                        }
+                        if (sId !== null) bodyParams.stageId = sId;
 
                         const respList = await fetch(listUrl, {
                             method: 'POST',
@@ -502,19 +491,19 @@
                         
                         const jsonList = await respList.json();
                         
-                        // 🔥 RECUPERACIÓN EN VUELO SI EL TOKEN EXPIRA EN MEDIO PROCESO (NUEVO) 🔥
+                        // 🔥 RECUPERACIÓN EN VUELO SI EL TOKEN EXPIRA EN MEDIO PROCESO 🔥
                         if (jsonList.code === 401 || jsonList.code === 403) {
                             const nuevoTokenRaw = obtenerTokenAutomatico();
                             if (nuevoTokenRaw && decodeURIComponent(nuevoTokenRaw) !== token) {
-                                token = decodeURIComponent(nuevoTokenRaw); // Lo actualizamos internamente
-                                inputToken.value = nuevoTokenRaw; // Actualizamos el panel visual
+                                token = decodeURIComponent(nuevoTokenRaw); 
+                                inputToken.value = nuevoTokenRaw; 
                                 mostrarAviso('🔄 Token expiró. Renovando automáticamente...', '#8b5cf6', 'info');
-                                continue; // Reintenta esta misma página sin abortar la descarga
+                                continue; 
                             } else {
                                 throw new Error("TokenExpirado");
                             }
                         }
-
+                        
                         if (jsonList.code !== 200 && jsonList.code !== 20000 && jsonList.code !== 0) break;
 
                         const registros = jsonList?.data?.records || jsonList?.records || [];
@@ -566,32 +555,27 @@
                     const rFecha = c.openTime ? String(c.openTime).split(' ')[0] : 'SIN FECHA';
                     const rRepay = String(c.isRepay).toLowerCase() === 'true';
 
-                    // 1. Etapa (AND)
                     if (filtrosElegidos.etapas.length > 0 && !filtrosElegidos.etapas.includes(rEtapa)) return false; 
-
-                    // 2. Cuenta (AND)
                     if (filtrosElegidos.cuentas.length > 0 && !filtrosElegidos.cuentas.includes(rCuenta)) return false;
 
                     const tieneFechas = filtrosElegidos.fechas.length > 0;
                     const tieneMoras = filtrosElegidos.moras.length > 0;
                     const tieneRepay = filtrosElegidos.soloIsRepay;
 
-                    // Si solo elegiste Etapa/Cuenta, pasan todos los de ese universo
                     if (!tieneFechas && !tieneMoras && !tieneRepay) return true; 
 
                     const coincideFecha = tieneFechas && filtrosElegidos.fechas.includes(rFecha);
                     const coincideMora = tieneMoras && filtrosElegidos.moras.includes(rMora);
                     const coincideRepay = tieneRepay && rRepay;
 
-                    // 3. Sumatorio (OR)
                     return coincideFecha || coincideMora || coincideRepay; 
                 });
             } else {
                 registrosAProcesar = registrosUnicos;
             }
-
+            
             if(registrosAProcesar.length === 0) {
-                mostrarAviso('Ningún cliente coincide', '#fbbf24', 'warning');
+                mostrarAviso('Ningún cliente válido encontrado o coincide con el filtro', '#fbbf24', 'warning');
                 restaurarBotones();
                 return;
             }
@@ -617,8 +601,8 @@
                     let linkDescarga = c.downloadLink || "";
                     let dniUrl = c.idNoUrl || "";
                     let selfUrl = c.livingNessUrl || ""; 
-                    let ref1 = ""; // <-- Nueva variable
-                    let ref2 = ""; // <-- Nueva variable
+                    let ref1 = ""; 
+                    let ref2 = ""; 
 
                     if (c.taskId && c.orderId && detailCalls < maxDetailCallsPerRun) {
                         detailCalls++;
@@ -650,8 +634,8 @@
                                     linkDescarga = detJson.data.downloadLink || linkDescarga;
                                     dniUrl = detJson.data.idNoUrl || dniUrl;
                                     selfUrl = detJson.data.livingNessUrl || selfUrl;
-
-                                    // 🔥 EXTRACCIÓN DE REFERENCIAS RECUPERADA 🔥
+                                    
+                                    // 🔥 EXTRACCIÓN DE REFERENCIAS (BLINDADO) 🔥
                                     let arrayContactos = detJson.data.contacts || detJson.data.contactList || detJson.data.linkmanList || [];
                                     if (arrayContactos.length > 0) {
                                         ref1 = String(arrayContactos[0].phoneNumber || arrayContactos[0].phone || "");
@@ -669,10 +653,12 @@
                     const idPlan = isVariousPlan ? idPlanStr : (idPlanStr.includes('p') ? idPlanStr : 'p' + idPlanStr);
 
                     const prefixClean = countryInfo.prefix.replace('+', '');
+                    
+                    // Lógica Teléfono Titular
                     const telLimpio = telefono.replace(/[^0-9]/g, '');
                     const telefonoFinal = telLimpio.length >= countryInfo.digits ? (prefixClean + telLimpio.slice(-countryInfo.digits)) : (prefixClean + telLimpio);
 
-                    // 🔥 LÓGICA DE LIMPIEZA DE REFERENCIAS 🔥
+                    // 🔥 LÓGICA DE REFERENCIAS: Cortamos los últimos N dígitos y pegamos prefijo
                     const ref1Limpio = ref1.replace(/[^0-9]/g, '');
                     const ref1Final = ref1Limpio ? (ref1Limpio.length >= countryInfo.digits ? (prefixClean + ref1Limpio.slice(-countryInfo.digits)) : (prefixClean + ref1Limpio)) : '';
                     
@@ -687,7 +673,7 @@
                         fechaConexion: c.openTime ? String(c.openTime).split(' ')[0] : '',
                         isRepay: c.isRepay, cuenta: c.urgeUserName || "Sin Asignar",
                         linkDescarga: linkDescarga, dniUrl: dniUrl, selfUrl: selfUrl,
-                        ref1: ref1Final, ref2: ref2Final // <-- ¡Inyectadas en la base!
+                        ref1: ref1Final, ref2: ref2Final 
                     };
                 });
 
@@ -700,7 +686,6 @@
                 await new Promise(r => setTimeout(r, 200)); 
             }
 
-            // 🔥 GUARDADO MASIVO Y REPORTE VISUAL 🔥
             const reporte = guardarMultiplesEnLote(todosLosNuevosDatos);
             
             if (reporte.agregados > 0 && reporte.actualizados > 0) {
@@ -724,15 +709,6 @@
     // ==========================================
     // 📊 BASE DE DATOS Y FILTROS MÚLTIPLES
     // ==========================================
-    const guardarEnLote = (datos) => {
-        let lote = JSON.parse(localStorage.getItem('LOTE_RAFAGA') || '[]');
-        const indexExistente = lote.findIndex(cliente => cliente.idPlan === datos.idPlan);
-        if (indexExistente === -1) lote.push(datos); else lote[indexExistente] = datos;
-        localStorage.setItem('LOTE_RAFAGA', JSON.stringify(lote)); 
-        actualizarPanelFiltroPlus(); 
-        actualizarTablaLotes();
-    };
-
     const guardarMultiplesEnLote = (arrayNuevosDatos) => {
         let lote = JSON.parse(localStorage.getItem('LOTE_RAFAGA') || '[]');
         
@@ -797,19 +773,16 @@
             let matchApp = appsSeleccionadas.length === 0 || appsSeleccionadas.includes(c.app);
             if (!matchApp) return false; 
             
-            // 🔥 MOTOR DE BÚSQUEDA Y PEGADO EXCEL INTEGRADO 🔥
-            const inputBusqueda = document.getElementById('input-busqueda-texto');
-            if (inputBusqueda) {
-                const textoBusqueda = inputBusqueda.value.toLowerCase().trim();
-                if (textoBusqueda !== '') {
-                    const stringCliente = `${c.idPlan} ${c.telefono} ${c.nombre} ${c.app} ${c.correo} ${c.producto}`.toLowerCase();
-                    const matchDirecto = stringCliente.includes(textoBusqueda);
-                    const matchInverso = textoBusqueda.includes(String(c.idPlan).toLowerCase()) || 
-                                         textoBusqueda.includes(String(c.telefono).replace('+', '').toLowerCase()) ||
-                                         (c.correo && c.correo.trim() !== '' && textoBusqueda.includes(String(c.correo).toLowerCase()));
-                    
-                    if (!matchDirecto && !matchInverso) return false; 
-                }
+            // 🔥 NUEVO MOTOR DE BÚSQUEDA Y PEGADO EXCEL 🔥
+            const textoBusqueda = (document.getElementById('input-busqueda-texto')?.value || '').toLowerCase().trim();
+            if (textoBusqueda !== '') {
+                const stringCliente = `${c.idPlan} ${c.telefono} ${c.nombre} ${c.app} ${c.correo} ${c.producto}`.toLowerCase();
+                const matchDirecto = stringCliente.includes(textoBusqueda);
+                const matchInverso = textoBusqueda.includes(String(c.idPlan).toLowerCase()) || 
+                                     textoBusqueda.includes(String(c.telefono).replace('+', '').toLowerCase()) ||
+                                     (c.correo && c.correo.trim() !== '' && textoBusqueda.includes(String(c.correo).toLowerCase()));
+                
+                if (!matchDirecto && !matchInverso) return false; 
             }
 
             let esRepay = String(c.isRepay).toLowerCase() === 'true';
@@ -822,11 +795,22 @@
 
             if (!tieneFechas && !tieneMoras && !tieneRepay) return true; 
 
-            const coincideFecha = tieneFechas && fechasSeleccionadas.includes(c.fechaConexion);
-            const coincideMora = tieneMoras && morasSeleccionadas.includes(dMora);
-            const coincideRepay = tieneRepay && repaySeleccionadas.includes(txtRepay);
+            const coincideFecha = fechasSeleccionadas.includes(c.fechaConexion);
+            const coincideMora = morasSeleccionadas.includes(dMora);
+            const coincideRepay = repaySeleccionadas.includes(txtRepay);
 
-            return coincideFecha || coincideMora || coincideRepay; 
+            const isEstricto = localStorage.getItem('RAFAGA_FILTRO_ESTRICTO') === 'true';
+
+            if (isEstricto) {
+                let pasaFecha = tieneFechas ? coincideFecha : true;
+                let pasaMora = tieneMoras ? coincideMora : true;
+                let pasaRepay = tieneRepay ? coincideRepay : true;
+                return pasaFecha && pasaMora && pasaRepay;
+            } else {
+                return (tieneFechas && coincideFecha) || 
+                       (tieneMoras && coincideMora) || 
+                       (tieneRepay && coincideRepay);
+            }
         });
         filtrado.sort((a, b) => (parseInt(a.diasMora) || 0) - (parseInt(b.diasMora) || 0));
         return filtrado;
@@ -928,6 +912,9 @@
             const tokenDetectado = obtenerTokenAutomatico() || "";
             let clicsTitulo = 0;
 
+            const isMacUI = navigator.userAgent.toUpperCase().indexOf('MAC OS') >= 0 || (navigator.userAgentData && navigator.userAgentData.platform === 'macOS');
+            const atajoTexto = isMacUI ? '⌘+Shift+Z' : 'Ctrl+Shift+Z';
+
             header.innerHTML = `
                 <div style="display:flex; align-items:center; gap:15px; padding-right: 30px; width: 100%;">
                     <span id="titulo-panel" style="cursor:pointer; white-space:nowrap; user-select:none;">📋 Base de datos</span>
@@ -936,7 +923,7 @@
                                style="width: 100%; background: #1e293b; color: #34d399; border: 1px solid #334155; border-radius: 4px; padding: 4px 8px; font-size: 10px; outline: none; font-family: monospace; cursor: default; user-select: none;">
                         <div id="escudo-token" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10; cursor:default;"></div>
                     </div>
-                    <span style="font-size:11px; font-weight:normal; color:#94a3b8; background:#0f172a; padding:2px 6px; border-radius:4px; user-select:none;">Ctrl+Shift+Z</span>
+                    <span style="font-size:11px; font-weight:normal; color:#94a3b8; background:#0f172a; padding:2px 6px; border-radius:4px; user-select:none;">${atajoTexto}</span>
                 </div>
                 <button type="button" id="btn-cerrar-panel" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:18px; line-height:1;">✖</button>
             `;
@@ -960,8 +947,11 @@
                             const pass = prompt("🔐 Acceso de Administrador para editar Token:");
                             if (pass === "1234") {
                                 inputToken.readOnly = false;
-                                inputToken.style.background = "#0f172a";
-                                inputToken.style.border = "1px solid #34d399";
+                                inputToken.style.filter = "none"; // Quita el borroso
+                                inputToken.style.opacity = "1";
+                                inputToken.style.background = "rgba(15, 23, 42, 0.8)";
+                                inputToken.style.border = "1px solid rgba(59, 130, 246, 0.5)";
+                                inputToken.style.borderRadius = "4px";
                                 inputToken.style.cursor = "text";
                                 inputToken.style.userSelect = "text";
                                 if(escudo) escudo.style.display = "none"; 
@@ -1004,9 +994,10 @@
                 header.style.cursor = 'grab'; 
             }, true);
 
+            // Reemplaza los estilos del toolbar
             const toolbar = document.createElement('div');
             Object.assign(toolbar.style, {
-                padding: '8px 20px', borderBottom: '1px solid #334155', backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                padding: '10px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)', backgroundColor: 'transparent',
                 display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap', position: 'relative' 
             });
 
@@ -1047,36 +1038,45 @@
                         <span style="font-weight: bold; color: #93c5fd; font-size: 14px;">🔍 Pegar Datos</span>
                         <span id="btn-cerrar-busqueda" style="cursor:pointer; color: #f87171; font-size: 16px;">✖</span>
                     </div>
-                    <textarea id="input-busqueda-texto" placeholder="Pega una fila de Excel o escribe un ID, teléfono..." style="width: 100%; height: 38px; max-height: 160px; background: #1e293b; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; padding: 8px; font-size: 12px; outline: none; resize: none; font-family: monospace; overflow-y: auto; box-sizing: border-box; transition: height 0.1s ease;"></textarea>
+                    <textarea id="input-busqueda-texto" class="scroll-filtros" placeholder="Pega una fila de Excel o escribe un ID, teléfono, nombre o correo..." style="width: 100%; height: 38px; max-height: 160px; background: #1e293b; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; padding: 8px; font-size: 12px; outline: none; resize: none; font-family: monospace; overflow-y: auto; box-sizing: border-box; transition: height 0.1s ease;"></textarea>
                     <div style="display:flex; justify-content: flex-end;">
                         <button type="button" id="btn-limpiar-busqueda" style="background: transparent; border: 1px solid #64748b; color: #cbd5e1; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;">Limpiar</button>
                     </div>
                 </div>
 
-                <div id="panel-filtro-plus" style="position: absolute; top: 100%; left: 20px; background: rgba(15, 23, 42, 0.98); border: 1px solid #8b5cf6; border-radius: 8px; padding: 15px; z-index: 3000; display: none; flex-direction: column; gap: 15px; min-width: 300px; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                <div id="panel-filtro-plus" style="position: absolute; top: 100%; left: 20px; background: rgba(15, 23, 42, 0.98); border: 1px solid #8b5cf6; border-radius: 8px; padding: 15px; z-index: 3000; display: none; flex-direction: column; gap: 15px; min-width: 320px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
                     <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 8px;">
-                        <span style="font-weight: bold; color: #a78bfa; font-size: 14px;">🎛️ Filtros Múltiples (Sin Duplicados)</span>
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <span style="font-weight: bold; color: #a78bfa; font-size: 14px;">🎛️ Filtros</span>
+                            <div style="display:flex; align-items:center; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                                <label class="switch-mora" title="Cambia entre modo Flexible (Suma resultados) y Estricto (Cruza resultados)" style="transform: scale(0.8); margin-right: 2px;">
+                                    <input type="checkbox" id="check-modo-logica">
+                                    <span class="slider-mora"></span>
+                                </label>
+                                <span class="label-mora" id="text-modo-logica" style="color:#60a5fa; font-size: 10px; min-width: 95px;">FLEXIBLE (SUMA)</span>
+                            </div>
+                        </div>
                         <span id="btn-cerrar-plus" style="cursor:pointer; color: #f87171; font-size: 16px;">✖</span>
                     </div>
                     
                     <div>
                         <label style="font-size: 12px; color: #cbd5e1; font-weight:bold; display:block; margin-bottom:5px;">📱 Aplicación (Múltiple):</label>
-                        <div id="plus-apps-container" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                        <div id="plus-apps-container" class="scroll-filtros" style="display:flex; flex-wrap:wrap; gap:6px; max-height: 90px; overflow-y: auto; align-content: flex-start; padding-right: 4px;"></div>
                     </div>
 
                     <div>
                         <label style="font-size: 12px; color: #cbd5e1; font-weight:bold; display:block; margin-bottom:5px;">📆 Fechas de Conexión (Múltiple):</label>
-                        <div id="plus-fechas-container" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                        <div id="plus-fechas-container" class="scroll-filtros" style="display:flex; flex-wrap:wrap; gap:6px; max-height: 120px; overflow-y: auto; align-content: flex-start; padding-right: 4px;"></div>
                     </div>
 
                     <div>
                         <label style="font-size: 12px; color: #cbd5e1; font-weight:bold; display:block; margin-bottom:5px;">⚠️ Días de Mora (Múltiple):</label>
-                        <div id="plus-moras-container" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                        <div id="plus-moras-container" class="scroll-filtros" style="display:flex; flex-wrap:wrap; gap:6px; max-height: 120px; overflow-y: auto; align-content: flex-start; padding-right: 4px;"></div>
                     </div>
 
                     <div>
                         <label style="font-size: 12px; color: #cbd5e1; font-weight:bold; display:block; margin-bottom:5px;">💰 Estado (Múltiple):</label>
-                        <div id="plus-repay-container" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                        <div id="plus-repay-container" class="scroll-filtros" style="display:flex; flex-wrap:wrap; gap:6px; max-height: 70px; overflow-y: auto; align-content: flex-start; padding-right: 4px;"></div>
                     </div>
                 </div>
             `;
@@ -1094,7 +1094,7 @@
                 if(btnMasFiltro && panelPlus) {
                     btnMasFiltro.onclick = (e) => {
                         e.stopPropagation();
-                        if(panelBusqueda) panelBusqueda.style.display = 'none'; // Cierra el otro
+                        if(panelBusqueda) panelBusqueda.style.display = 'none'; // Cierra el otro panel
                         if(panelPlus.style.display === 'none') {
                             panelPlus.style.display = 'flex';
                             actualizarPanelFiltroPlus(); 
@@ -1102,14 +1102,14 @@
                             panelPlus.style.display = 'none';
                         }
                     };
-                    
+
                     if (btnBuscar && panelBusqueda) {
                         btnBuscar.onclick = (e) => {
                             e.stopPropagation();
-                            if(panelPlus) panelPlus.style.display = 'none'; // Cierra el otro
+                            if(panelPlus) panelPlus.style.display = 'none'; // Cierra el otro panel
                             if(panelBusqueda.style.display === 'none') {
                                 panelBusqueda.style.display = 'flex';
-                                inputBusqueda.focus(); 
+                                inputBusqueda.focus(); // Pone el cursor directo para pegar (Ctrl+V)
                             } else {
                                 panelBusqueda.style.display = 'none';
                             }
@@ -1120,8 +1120,10 @@
                             panelBusqueda.style.display = 'none';
                         };
 
+                        // Filtra en tiempo real y auto-ajusta la altura del cuadro sin desbordar
                         inputBusqueda.addEventListener('input', function() {
                             this.style.height = 'auto';
+                            // Se estira dinámicamente según las líneas pegadas pero se congela a los 160px máximos
                             this.style.height = Math.min(this.scrollHeight, 160) + 'px';
                             actualizarTablaLotes(); 
                         });
@@ -1129,15 +1131,31 @@
                         btnLimpiarBusqueda.onclick = (e) => {
                             e.stopPropagation();
                             inputBusqueda.value = '';
-                            inputBusqueda.style.height = '38px'; 
+                            inputBusqueda.style.height = '38px'; // Revierte al tamaño compacto original
                             actualizarTablaLotes();
                             inputBusqueda.focus();
                         };
                     }
-
                     document.getElementById('btn-cerrar-plus').onclick = (e) => {
                         e.stopPropagation();
                         panelPlus.style.display = 'none';
+                    };
+                    
+                    // Lógica del Switch de Modo Filtro
+                    const checkLogica = document.getElementById('check-modo-logica');
+                    const textLogica = document.getElementById('text-modo-logica');
+                    const isEstricto = localStorage.getItem('RAFAGA_FILTRO_ESTRICTO') === 'true';
+
+                    checkLogica.checked = isEstricto;
+                    textLogica.innerText = isEstricto ? 'ESTRICTO (EMBUDO)' : 'FLEXIBLE (SUMA)';
+                    textLogica.style.color = isEstricto ? '#ef4444' : '#60a5fa';
+
+                    checkLogica.onchange = (e) => {
+                        const checked = e.target.checked;
+                        localStorage.setItem('RAFAGA_FILTRO_ESTRICTO', checked);
+                        textLogica.innerText = checked ? 'ESTRICTO (EMBUDO)' : 'FLEXIBLE (SUMA)';
+                        textLogica.style.color = checked ? '#ef4444' : '#60a5fa';
+                        actualizarTablaLotes();
                     };
                 }
             }, 100);
@@ -1186,7 +1204,7 @@
                     let x = e.clientX + 15;
                     let y = e.clientY + 15;
                     
-                    // Evitar que se salga de la pantalla
+                    // Evitar que se salga de la pantalla (Derecha / Abajo)
                     if (x + 320 > window.innerWidth) x = e.clientX - 335;
                     if (y + 350 > window.innerHeight) y = e.clientY - tooltip.offsetHeight - 15;
 
@@ -1198,16 +1216,18 @@
             tableContainer.addEventListener('mouseout', (e) => {
                 if (e.target.classList.contains('rafaga-hover-img') || e.target.classList.contains('rafaga-hover-text')) {
                     tooltip.style.display = 'none';
-                    tooltip.innerHTML = ''; 
+                    tooltip.innerHTML = ''; // Limpiar RAM visual
                 }
             });
 
+            // Reemplaza los estilos del footer
             const footer = document.createElement('div');
             Object.assign(footer.style, {
-                padding: '12px 20px', borderTop: '1px solid #334155', display: 'flex', justifyContent: 'space-between',
-                backgroundColor: 'rgba(30, 41, 59, 0.8)', borderRadius: '0 0 12px 12px', flexWrap: 'wrap', gap: '10px'
+                padding: '14px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between',
+                backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '0 0 14px 14px', flexWrap: 'wrap', gap: '12px'
             });
             
+            // 🔥 BOTÓN MODO MANAGER INTEGRADO AQUÍ 🔥
             footer.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button type="button" id="btn-limpiar-lote" class="btn-rafaga btn-red" title="Limpiar Base">🗑️</button>
@@ -1276,7 +1296,8 @@
                     actualizarTablaLotes();
                 }
             };
-
+            
+            // 🔥 EVENTO MODO MANAGER AÑADIDO 🔥
             const btnModoManager = document.getElementById('btn-modo-manager');
             if (btnModoManager) {
                 btnModoManager.onclick = async (e) => { 
@@ -1293,7 +1314,7 @@
                     }
                 };
             }
-            
+
             const btnExtraerTodo = document.getElementById('btn-extraer-todo');
             if (btnExtraerTodo) {
                 btnExtraerTodo.onclick = async (e) => { 
@@ -1301,7 +1322,7 @@
                     e.stopPropagation(); 
                     const confirmado = await mostrarConfirmacionHTML(
                         '⚠️ ADVERTENCIA DE SISTEMA',
-                        '¿Estás seguro que estás en una <strong style="color:#34d399;">cuenta única</strong> administrada por agente?',
+                        '¿Estás seguro que estás en una <strong style="color:#34d399;">cuenta</strong> administrada por agente?',
                         'Sí, Continuar',
                         '#34d399' 
                     );
@@ -1315,60 +1336,37 @@
                 e.stopPropagation();
                 let lote = obtenerLoteFiltrado();
                 if (lote.length === 0) return mostrarAviso('No hay contactos', '#fbbf24', 'warning');
-
-                // Función auxiliar para escapar campos según el estándar CSV
-                const escaparCSV = (texto) => {
-                    if (!texto) return '';
-                    let str = String(texto).trim();
-                    if (str.includes('"')) str = str.replace(/"/g, '""');
-                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return `"${str}"`;
-                    }
-                    return str;
-                };
-
-                let filasCSV = [];
                 
-                // Cabecera EXACTA a la original (sin correo)
-                filasCSV.push("\uFEFFID PLAN,NOMBRE,APP,PRODUCTO,DEUDA TOTAL,PRORROGA,DIAS MORA,CARGO POR MORA,MONTO CONTRATO,NUMERO,REFERENCIA 1,REFERENCIA 2");
-
+                // 🔥 Cabecera modificada según el formato solicitado
+                let csvContent = "\uFEFFID PLAN,NOMBRE,APP,PRODUCTO,DEUDA TOTAL,PRORROGA,DIAS MORA,CARGO POR MORA,MONTO CONTRATO,NUMERO,REFERENCIA 1,REFERENCIA 2\n"; 
+                
                 lote.forEach(c => {
-                    // Se añade \t oculto para forzar formato texto en Excel y evitar notación científica
-                    let tel = c.telefono ? '\t' + c.telefono.replace('+', '').trim() : '';
-                    let r1 = c.ref1 ? '\t' + c.ref1.replace('+', '').trim() : '';
-                    let r2 = c.ref2 ? '\t' + c.ref2.replace('+', '').trim() : '';
+                    let idPlan = c.idPlan || '';
+                    
+                    // Limpiamos comillas y comas internas para que el CSV plano no se rompa
+                    let nom = c.nombre ? c.nombre.trim().replace(/["',]/g, ' ') : '';
+                    let app = c.app ? c.app.replace(/["',]/g, ' ') : '';
+                    let producto = c.producto ? c.producto.replace(/["',]/g, ' ') : '';
+                    
+                    let monto = c.monto || '0';
+                    let reinv = c.importeReinv || '0';
+                    let diasMora = c.diasMora || '0';
+                    let cargoMora = c.cargoMora || '0';
+                    let montoPago = c.montoPago || '0';
+                    
+                    let tel = c.telefono ? c.telefono.replace('+', '').trim() : ''; 
+                    let r1 = c.ref1 ? c.ref1.replace('+', '').trim() : '';
+                    let r2 = c.ref2 ? c.ref2.replace('+', '').trim() : '';
 
-                    let fila = [
-                        c.idPlan || '',
-                        escaparCSV(c.nombre),
-                        escaparCSV(c.app),
-                        escaparCSV(c.producto),
-                        c.monto || '0',
-                        c.importeReinv || '0',
-                        c.diasMora || '0',
-                        c.cargoMora || '0',
-                        c.montoPago || '0',
-                        tel,
-                        r1,
-                        r2
-                    ];
-
-                    filasCSV.push(fila.join(','));
+                    // Construcción de la fila SIN COMILLAS, solo separada por comas
+                    csvContent += `${idPlan},${nom},${app},${producto},${monto},${reinv},${diasMora},${cargoMora},${montoPago},${tel},${r1},${r2}\n`;
                 });
-
-                const csvContent = filasCSV.join('\n');
+                
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a'); 
-                a.href = url;
+                const a = document.createElement('a'); a.href = url;
                 a.download = `Gestión_Cartera_${new Date().toISOString().split('T')[0]}.csv`;
-                
-                document.body.appendChild(a); 
-                a.click(); 
-                document.body.removeChild(a); 
-                URL.revokeObjectURL(url);
-                
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                 mostrarAviso('CSV descargado 📥', '#f59e0b', 'success');
             };
 
@@ -1386,8 +1384,10 @@
                         dataFila.push(c.diasMora || '0', c.cargoMora || '0', c.montoPago || '0');
                     }
                     if (isEtcActive) {
+                        // Transformamos DNI y SELF en etiquetas <img> si existen
                         let imgDni = c.dniUrl ? `<img src="${c.dniUrl}" style="max-width:200px;border:1px solid #ccc;" />` : '';
                         let imgSelf = c.selfUrl ? `<img src="${c.selfUrl}" style="max-width:200px;border:1px solid #ccc;" />` : '';
+                        
                         dataFila.push(c.linkDescarga || '', imgDni, imgSelf);
                     }
                     dataFila.push(c.fechaConexion || ''); 
@@ -1616,7 +1616,7 @@
     }; 
 
     window.addEventListener('keydown', (e) => {
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const isMac = navigator.userAgent.toUpperCase().indexOf('MAC OS') >= 0 || (navigator.userAgentData && navigator.userAgentData.platform === 'macOS');
         const modifierKey = isMac ? e.metaKey : e.ctrlKey;
         if (modifierKey && e.shiftKey && e.code === 'KeyZ') {
             e.preventDefault();
@@ -1661,7 +1661,8 @@
     let lastUrl = location.href;
 
     (async () => {
-        if (localStorage.getItem('PANEL_RAFAGA_VISIBLE') === null) localStorage.setItem('PANEL_RAFAGA_VISIBLE', 'true');
+        // Mantenido como lo tenías en tu primer código
+        if (localStorage.getItem('PANEL_RAFAGA_VISIBLE') === null) localStorage.setItem('PANEL_RAFAGA_VISIBLE', 'false');
         if (localStorage.getItem('RAFAGA_MODO_ETC') === null) localStorage.setItem('RAFAGA_MODO_ETC', 'true');
         
         let estadoInicialMora = 'false'; 
