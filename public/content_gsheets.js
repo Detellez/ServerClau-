@@ -760,7 +760,7 @@
                 
                 scrollArea.style.maxHeight = 'none'; 
                 scrollArea.style.overflowY = 'visible'; 
-                showNotification('Copiando al portapapeles...', 2000, 'info');
+                showNotification('📸 Capturando tabla... espera un momento', 2000, 'info');
 
                 try {
                     const canvas = await html2canvas(captureArea, { 
@@ -782,18 +782,32 @@
                         try {
                             const item = new ClipboardItem({ 'image/png': blob });
                             await navigator.clipboard.write([item]);
-                            showNotification("✅ Imagen Copiada", 3000, "success");
+                            showNotification("✅ Imagen Copiada al Portapapeles", 3000, "success");
                         } catch (clipboardErr) {
+                            // FALLBACK ANTI-POPUP BLOCKER: Inyectamos un modal interactivo en el DOM actual
                             const imgUrl = canvas.toDataURL("image/png");
-                            const newTab = window.open();
-                            newTab.document.write(`
-                                <div style="text-align: center; font-family: sans-serif; padding: 20px; background: #f0f0f0;">
-                                    <h2>Bloqueo de copiado automático</h2>
-                                    <p>Haz <b>click derecho</b> en la imagen de abajo y selecciona <b>"Copiar imagen"</b></p>
+                            
+                            const modalFallback = document.createElement('div');
+                            Object.assign(modalFallback.style, {
+                                position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
+                                backgroundColor: 'rgba(0,0,0,0.85)', zIndex: '2147483647',
+                                display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+                                backdropFilter: 'blur(5px)', fontFamily: "'Segoe UI', Tahoma, Arial, sans-serif"
+                            });
+                            
+                            modalFallback.innerHTML = `
+                                <div style="background: #fff; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                                    <h2 style="color: #a32020; margin-top: 0;">⚠️ Seguridad del Navegador</h2>
+                                    <p style="color: #333; margin-bottom: 15px; font-size: 14px;">Haz <b>click derecho</b> en la imagen y selecciona <b>"Copiar imagen"</b>.</p>
                                     <img src="${imgUrl}" style="max-width: 100%; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                    <br><br>
+                                    <button id="btn-cerrar-modal-img" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s;">CERRAR PANEL</button>
                                 </div>
-                            `);
-                            showNotification("Se abrió en otra pestaña", 3000, "warning");
+                            `;
+                            document.body.appendChild(modalFallback);
+                            
+                            document.getElementById('btn-cerrar-modal-img').onclick = () => modalFallback.remove();
+                            showNotification("Copiado automático denegado. Usa el panel.", 4000, "warning");
                         }
                     });
 
