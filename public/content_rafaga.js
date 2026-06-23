@@ -1318,8 +1318,8 @@
 
                 let filasCSV = [];
                 
-                // Cabecera con CORREO incluido
-                filasCSV.push("\uFEFFID PLAN,NOMBRE,APP,CORREO,PRODUCTO,DEUDA TOTAL,PRORROGA,DIAS MORA,CARGO POR MORA,MONTO CONTRATO,NUMERO,REFERENCIA 1,REFERENCIA 2");
+                // Cabecera EXACTA a la original (sin correo)
+                filasCSV.push("\uFEFFID PLAN,NOMBRE,APP,PRODUCTO,DEUDA TOTAL,PRORROGA,DIAS MORA,CARGO POR MORA,MONTO CONTRATO,NUMERO,REFERENCIA 1,REFERENCIA 2");
 
                 lote.forEach(c => {
                     // Se añade \t oculto para forzar formato texto en Excel y evitar notación científica
@@ -1331,7 +1331,6 @@
                         c.idPlan || '',
                         escaparCSV(c.nombre),
                         escaparCSV(c.app),
-                        escaparCSV(c.correo),
                         escaparCSV(c.producto),
                         c.monto || '0',
                         c.importeReinv || '0',
