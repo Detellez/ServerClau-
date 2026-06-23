@@ -653,6 +653,21 @@
                     const telLimpio = telefono.replace(/[^0-9]/g, '');
                     const telefonoFinal = telLimpio.length >= countryInfo.digits ? (prefixClean + telLimpio.slice(-countryInfo.digits)) : (prefixClean + telLimpio);
 
+                    // Recuperando lógica de referencias
+                    let ref1 = ""; 
+                    let ref2 = "";
+                    try {
+                        let arrayContactos = c.contacts || c.contactList || c.linkmanList || [];
+                        if (arrayContactos.length > 0) {
+                            const r1Limpio = String(arrayContactos[0].phoneNumber || arrayContactos[0].phone || "").replace(/[^0-9]/g, '');
+                            ref1 = r1Limpio ? (r1Limpio.length >= countryInfo.digits ? (prefixClean + r1Limpio.slice(-countryInfo.digits)) : (prefixClean + r1Limpio)) : '';
+                        }
+                        if (arrayContactos.length > 1) {
+                            const r2Limpio = String(arrayContactos[1].phoneNumber || arrayContactos[1].phone || "").replace(/[^0-9]/g, '');
+                            ref2 = r2Limpio ? (r2Limpio.length >= countryInfo.digits ? (prefixClean + r2Limpio.slice(-countryInfo.digits)) : (prefixClean + r2Limpio)) : '';
+                        }
+                    } catch(e) {}
+
                     return {
                         idPlan: idPlan, telefono: telefonoFinal, nombre: c.userName || c.name || "",
                         app: c.appName || "", correo: correo, producto: c.productName || "",
@@ -660,7 +675,8 @@
                         diasMora: String(c.overdueDay || ""), cargoMora: cargoMora, montoPago: montoPago,
                         fechaConexion: c.openTime ? String(c.openTime).split(' ')[0] : '',
                         isRepay: c.isRepay, cuenta: c.urgeUserName || "Sin Asignar",
-                        linkDescarga: linkDescarga, dniUrl: dniUrl, selfUrl: selfUrl
+                        linkDescarga: linkDescarga, dniUrl: dniUrl, selfUrl: selfUrl,
+                        ref1: ref1, ref2: ref2 // <-- ¡Agregadas aquí!
                     };
                 });
 
