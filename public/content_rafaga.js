@@ -472,22 +472,30 @@
         const maxPagesPerRun = 20;
         let todosLosRegistrosBrutos = [];
         
-        const etapasAbuscar = [-1, 0, 1, 2, 3, 4, 5, 6, 7]; 
+        // 🔥 CLAVE: Modo Manager busca por etapas para los filtros. Extraer Todo tira un solo escaneo global directo.
+        const etapasIterar = esModoManager ? [-1, 0, 1, 2, 3, 4, 5, 6, 7] : [null]; 
 
         mostrarAviso(`Buscando cuentas en ${countryInfo.name}...`, '#3b82f6', 'info');
 
         try {
-            for (const sId of etapasAbuscar) {
+            for (const sId of etapasIterar) {
                 let page = 1;
                 let totalPages = 1;
 
                 while (true) {
                     try {
                         const listUrl = `${baseUrl}/api/manage/urge/task/waitUrgeTaskPage?v=${Date.now()}`;
+                        
+                        // Configuramos los parámetros JSON dinámicamente
+                        let bodyParams = { current: page, size: pageSize };
+                        if (sId !== null) {
+                            bodyParams.stageId = sId;
+                        }
+
                         const respList = await fetch(listUrl, {
                             method: 'POST',
                             headers: { 'Authentication': token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                            body: JSON.stringify({ stageId: sId, current: page, size: pageSize })
+                            body: JSON.stringify(bodyParams)
                         });
 
                         if (!respList.ok) break; 
@@ -609,6 +617,8 @@
                     let linkDescarga = c.downloadLink || "";
                     let dniUrl = c.idNoUrl || "";
                     let selfUrl = c.livingNessUrl || ""; 
+                    let ref1 = ""; // <-- Nueva variable
+                    let ref2 = ""; // <-- Nueva variable
 
                     if (c.taskId && c.orderId && detailCalls < maxDetailCallsPerRun) {
                         detailCalls++;
@@ -640,6 +650,15 @@
                                     linkDescarga = detJson.data.downloadLink || linkDescarga;
                                     dniUrl = detJson.data.idNoUrl || dniUrl;
                                     selfUrl = detJson.data.livingNessUrl || selfUrl;
+
+                                    // 🔥 EXTRACCIÓN DE REFERENCIAS RECUPERADA 🔥
+                                    let arrayContactos = detJson.data.contacts || detJson.data.contactList || detJson.data.linkmanList || [];
+                                    if (arrayContactos.length > 0) {
+                                        ref1 = String(arrayContactos[0].phoneNumber || arrayContactos[0].phone || "");
+                                    }
+                                    if (arrayContactos.length > 1) {
+                                        ref2 = String(arrayContactos[1].phoneNumber || arrayContactos[1].phone || "");
+                                    }
                                 }
                             }
                         } catch(e) {}
@@ -653,20 +672,12 @@
                     const telLimpio = telefono.replace(/[^0-9]/g, '');
                     const telefonoFinal = telLimpio.length >= countryInfo.digits ? (prefixClean + telLimpio.slice(-countryInfo.digits)) : (prefixClean + telLimpio);
 
-                    // Recuperando lógica de referencias
-                    let ref1 = ""; 
-                    let ref2 = "";
-                    try {
-                        let arrayContactos = c.contacts || c.contactList || c.linkmanList || [];
-                        if (arrayContactos.length > 0) {
-                            const r1Limpio = String(arrayContactos[0].phoneNumber || arrayContactos[0].phone || "").replace(/[^0-9]/g, '');
-                            ref1 = r1Limpio ? (r1Limpio.length >= countryInfo.digits ? (prefixClean + r1Limpio.slice(-countryInfo.digits)) : (prefixClean + r1Limpio)) : '';
-                        }
-                        if (arrayContactos.length > 1) {
-                            const r2Limpio = String(arrayContactos[1].phoneNumber || arrayContactos[1].phone || "").replace(/[^0-9]/g, '');
-                            ref2 = r2Limpio ? (r2Limpio.length >= countryInfo.digits ? (prefixClean + r2Limpio.slice(-countryInfo.digits)) : (prefixClean + r2Limpio)) : '';
-                        }
-                    } catch(e) {}
+                    // 🔥 LÓGICA DE LIMPIEZA DE REFERENCIAS 🔥
+                    const ref1Limpio = ref1.replace(/[^0-9]/g, '');
+                    const ref1Final = ref1Limpio ? (ref1Limpio.length >= countryInfo.digits ? (prefixClean + ref1Limpio.slice(-countryInfo.digits)) : (prefixClean + ref1Limpio)) : '';
+                    
+                    const ref2Limpio = ref2.replace(/[^0-9]/g, '');
+                    const ref2Final = ref2Limpio ? (ref2Limpio.length >= countryInfo.digits ? (prefixClean + ref2Limpio.slice(-countryInfo.digits)) : (prefixClean + ref2Limpio)) : '';
 
                     return {
                         idPlan: idPlan, telefono: telefonoFinal, nombre: c.userName || c.name || "",
@@ -676,7 +687,7 @@
                         fechaConexion: c.openTime ? String(c.openTime).split(' ')[0] : '',
                         isRepay: c.isRepay, cuenta: c.urgeUserName || "Sin Asignar",
                         linkDescarga: linkDescarga, dniUrl: dniUrl, selfUrl: selfUrl,
-                        ref1: ref1, ref2: ref2 // <-- ¡Agregadas aquí!
+                        ref1: ref1Final, ref2: ref2Final // <-- ¡Inyectadas en la base!
                     };
                 });
 
