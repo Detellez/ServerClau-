@@ -1266,7 +1266,9 @@
             footer.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button type="button" id="btn-limpiar-lote" class="btn-rafaga btn-red" title="Limpiar Base">🗑️</button>
-                    <button type="button" id="btn-descargar-contactos" class="btn-rafaga btn-orange" title="Descargar CSV">👥</button>
+                    <button type="button" id="btn-descargar-contactos" class="btn-rafaga" style="background: #166534; color: white; transition: all 0.3s;" title="Copiar Contactos" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 12px #166534, 0 0 20px #166534';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </button>
                     
                     <button type="button" id="btn-modo-manager" class="btn-rafaga btn-yellow">⚡Modo Manager⚡</button>
                     <button type="button" id="btn-extraer-todo" class="btn-rafaga btn-green">⚡Extraer Todo⚡</button>
@@ -1372,33 +1374,21 @@
                 let lote = obtenerLoteFiltrado();
                 if (lote.length === 0) return mostrarAviso('No hay contactos', '#fbbf24', 'warning');
                 
-                // Función auxiliar para escapar campos según el estándar CSV
-                const escaparCSV = (texto) => {
-                    if (!texto) return '';
-                    let str = String(texto).trim();
-                    if (str.includes('"')) str = str.replace(/"/g, '""');
-                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return `"${str}"`;
-                    }
-                    return str;
-                };
-
-                let filasCSV = [];
+                let filas = [];
                 
-                // Cabecera EXACTA a la original (sin correo)
-                filasCSV.push("\uFEFFID PLAN,NOMBRE,APP,PRODUCTO,DEUDA TOTAL,PRORROGA,DIAS MORA,CARGO POR MORA,MONTO CONTRATO,NUMERO,REFERENCIA 1,REFERENCIA 2");
+                // Encabezado separado por tabulaciones para pegar directo en Excel
+                filas.push("ID PLAN\tNOMBRE\tAPP\tPRODUCTO\tDEUDA TOTAL\tPRORROGA\tDIAS MORA\tCARGO POR MORA\tMONTO CONTRATO\tNUMERO\tREFERENCIA 1\tREFERENCIA 2");
 
                 lote.forEach(c => {
-                    // Se añade \t oculto para forzar formato texto en Excel y evitar notación científica
-                    let tel = c.telefono ? '\t' + c.telefono.replace('+', '').trim() : '';
-                    let r1 = c.ref1 ? '\t' + c.ref1.replace('+', '').trim() : '';
-                    let r2 = c.ref2 ? '\t' + c.ref2.replace('+', '').trim() : '';
+                    let tel = c.telefono ? c.telefono.replace('+', '').trim() : '';
+                    let r1 = c.ref1 ? c.ref1.replace('+', '').trim() : '';
+                    let r2 = c.ref2 ? c.ref2.replace('+', '').trim() : '';
 
                     let fila = [
                         c.idPlan || '',
-                        escaparCSV(c.nombre),
-                        escaparCSV(c.app),
-                        escaparCSV(c.producto),
+                        c.nombre || '',
+                        c.app || '',
+                        c.producto || '',
                         c.monto || '0',
                         c.importeReinv || '0',
                         c.diasMora || '0',
@@ -1408,24 +1398,15 @@
                         r1,
                         r2
                     ];
-
-                    filasCSV.push(fila.join(','));
+                    filas.push(fila.join('\t')); // \t crea las columnas al pegar en Excel
                 });
 
-                const csvContent = filasCSV.join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a'); 
-                a.href = url;
-                a.download = `Gestión_Cartera_${new Date().toISOString().split('T')[0]}.csv`;
-                
-                document.body.appendChild(a); 
-                a.click(); 
-                document.body.removeChild(a); 
-                URL.revokeObjectURL(url);
-                
-                mostrarAviso('CSV descargado 📥', '#f59e0b', 'success');
+                navigator.clipboard.writeText(filas.join('\n')).then(() => {
+                    mostrarAviso(`¡${lote.length} filas copiadas con éxito! 📋`, '#f59e0b', 'success');
+                }).catch(err => {
+                    console.error("Error al copiar: ", err);
+                    mostrarAviso('Error al copiar al portapapeles', '#ef4444', 'error');
+                });
             };
 
             document.getElementById('btn-copiar-lote').onclick = (e) => {
