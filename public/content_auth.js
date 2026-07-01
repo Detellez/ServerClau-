@@ -733,6 +733,54 @@
     // 🌐 EL ENRUTADOR INTELIGENTE V12 (DINÁMICO)
     // ==========================================
     const SERVERS_DB = {
+        'server-bm-xlph': {
+            script: 'https://script.google.com/macros/s/AKfycbzd0yXMyFtN3OMLb4bWlbvmifj2ENvQMhcJ_ZdSmuMAVQ6diTnPsAAyfxsDWcJFZpnv/exec',
+            firebase: 'https://notificacionesss1-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-alejandra-zmr9': {
+            script: 'https://script.google.com/macros/s/AKfycbyitxqrbKSUDhOFHDWlk_fOih1gCIQ9jj4JNHm0YQg9qavl_ICbSWOSZjgy0dthb8o24A/exec',
+            firebase: 'https://notificaciones-ssts-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-marcelo': {
+            script: 'https://script.google.com/macros/s/AKfycbwUR9Mcw0RvQvxI2ArwNhwucKd3GkPjcjsmNMnq4iVXnjkKkzdxNMN2KyxbAxrGTsrK/exec',
+            firebase: 'https://marcelonotificacion-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-inso': {
+            script: 'https://script.google.com/macros/s/AKfycbwRBmQk-FtHmzJAT4_VXNRO8Zh7g11jGjoYBYTCXf-S9zKIy8N3pn4cyJ5l5m6uBA/exec',
+            firebase: 'https://sst-notificaciones-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-al-t0': {
+            script: 'https://script.google.com/macros/s/AKfycbx2MmJpsF1jgwyhmH4AuYpOoRQKv4U6AEo9HQiDv7LxXx8TR3qNHFLczu1TyCMvCAsl/exec',
+            firebase: 'https://notificacionalt0-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-al-t1': {
+            script: 'https://script.google.com/macros/s/AKfycbxsyFiCV1bhHvfPFXCANqN9Ce4ap-DtABPgqdZ_5H74NMwa_1tk1Y8FNzvfUvUkjBiLbQ/exec',
+            firebase: 'https://notificacionalamza-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-melany': {
+            script: 'https://script.google.com/macros/s/AKfycbxar5ba7f-3jys7heqsWeJLCrYjipcIC6HspbzEP3AtgSLZlVPDPfImkFjNevXzCERLDA/exec',
+            firebase: 'https://sst-notificaciones2-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-1uis': {
+            script: 'https://script.google.com/macros/s/AKfycbz8dYDMdw-5f7t-eSopmHn6zCvrFgxGIopCR_yROQerTYyyFJIWVBkFKgfs1NGn1W4x/exec',
+            firebase: 'https://notificasion-luis-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-carmen': {
+            script: 'https://script.google.com/macros/s/AKfycbwmvvUWJhV8QkfrVjKJ0MMJAL9rdzJ3jFkSb-k5z9hzDpnwC5wiawPUesmQ2osMCwM/exec',
+            firebase: 'https://sst-notificaciones-carmen-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-diego': {
+            script: 'https://script.google.com/macros/s/AKfycbzsH7WaeIkOW9v5Nh3zTBX1T5KXx39yHCT892H_voYc_yktm1oifUY8VeGOTvdfmKgf/exec',
+            firebase: 'https://notificaciondiegos1-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-gr-s1': {
+            script: 'https://script.google.com/macros/s/AKfycbyoz-hQocwhT6YlNqW0BNK-bIzNAlCbhlYSp9Geq5_Mx8ldVpLlfzo1YP8uR3gr0LnF/exec',
+            firebase: 'https://notificacionchru-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
+        'server-57': {
+            script: 'https://script.google.com/macros/s/AKfycbz2VZm-hVrVHH_Ylzfk1v5bkN1ImiiVdZHEOaNhIf1jan5T9JyaOBYVh0f7xOQkr4oe/exec',
+            firebase: 'https://indivialnotificacion-default-rtdb.firebaseio.com/alerta_activa.json'
+        },
         'server-clau': {
             script: 'https://script.google.com/macros/s/AKfycbza0-zudKSnFi43LxJAhYoNRbcGfSrrPjzU3iQF0Ah62S9_5-BxUUYVpxpZAXFccC3P-w/exec',
             firebase: 'https://notificacionsst-14eb3-default-rtdb.firebaseio.com/alerta_activa.json'
@@ -1373,27 +1421,11 @@ function showNotification(message, msgId, type = 'info') {
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
     });
-    // 🔥 FUNCIÓN GLOBAL DE REPARACIÓN (MODIFICADA: SIN LOGIN Y CON BACKUP DE PLANTILLAS) 🔥
+// 🔥 FUNCIÓN GLOBAL DE REPARACIÓN (SIEMPRE DISPONIBLE PARA EL MENÚ OSCURO) 🔥
     window.SST_GLOBAL_REPAIR = async () => {
-        // --- 1. GUARDAR BACKUP DE PLANTILLAS ANTES DE RESETEAR ---
-        const data = localStorage.getItem('CUSTOM_BTNS_LIST') || "[]";
-        if (data !== "[]" && data.length > 5) {
-            // Intenta mostrar el toast original si está cargado
-            if (typeof showSSTToast === 'function') {
-                showSSTToast("📤 Guardando backup de plantillas...", false);
-            }
-            const blob = new Blob([data], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `SST_Backup_Auto_Reseteo_${new Date().toISOString().slice(0,10)}.json`; 
-            a.click();
-            URL.revokeObjectURL(url);
-            // Pequeña pausa para asegurar la descarga antes de que se limpie todo
-            await new Promise(r => setTimeout(r, 600)); 
-        }
-
-        // --- 2. MOSTRAR UI DE PROGRESO ---
+        const result = await mostrarModalReparacion();
+        if (!result.confirmado) return;
+        
         const targetBtn = document.getElementById('btn-auth-repair-global') || document.createElement('button');
         targetBtn.innerHTML = '<span style="font-size:16px;">⏳</span>';
 
@@ -1426,28 +1458,50 @@ function showNotification(message, msgId, type = 'info') {
             document.head.appendChild(style);
         }
 
-        // --- 3. EJECUTAR LIMPIEZA DIRECTA ---
         try {
+            if (!API_URL) throw new Error('Servidor no configurado');
+
+            mostrarProgreso('Validando credenciales...', '🔐', '#3b82f6'); 
+            
+            const urlLogin = new URL(API_URL);
+            urlLogin.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9');
+            urlLogin.searchParams.append('action', 'login');
+            urlLogin.searchParams.append('usuario', result.user);
+            urlLogin.searchParams.append('contrasena', result.pass);
+            urlLogin.searchParams.append('sessionId', 'repair_check_' + Date.now());
+
+            const loginRes = await new Promise(resolve => {
+                safeSendMessage({ action: 'proxy_fetch', url: urlLogin.toString(), options: { method: 'GET' } }, resolve);
+            });
+
+            if (!loginRes || !loginRes.success || !loginRes.data || !loginRes.data.success) {
+                throw new Error('Contraseña Incorrecta');
+            }
+
+            mostrarProgreso('Borrando sesiones activas...', '🔥', '#ef4444'); 
+            
+            const urlKill = new URL(API_URL);
+            urlKill.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9');
+            urlKill.searchParams.append('action', 'kill_all');
+            urlKill.searchParams.append('usuario', result.user);
+            
+            await new Promise(resolve => {
+                safeSendMessage({ action: 'proxy_fetch', url: urlKill.toString(), options: { method: 'GET' } }, resolve);
+            });
+
             mostrarProgreso('Reiniciando extensión...', '♻️', '#f59e0b'); 
             
-            // Llama a la desconexión local si existe sesión
-            if (localStorage.getItem('usuarioLogueado') && typeof logoutAndClean === 'function') {
-                logoutAndClean(); 
-            }
-            
-            // Borrado forzoso de cachés sin validar con el servidor
-            localStorage.clear(); 
-            sessionStorage.clear();
+            if (localStorage.getItem('usuarioLogueado')) logoutAndClean(); 
+            localStorage.clear(); sessionStorage.clear();
             try { if (chrome && chrome.storage && chrome.storage.local) chrome.storage.local.clear(); } catch(e) {}
             
             mostrarProgreso('¡Restauración Completa!', '✅', '#10b981'); 
             
-            // Recargar la página limpia
             setTimeout(() => window.location.reload(true), 1500);
 
         } catch (e) {
             targetBtn.innerHTML = '<span style="font-size:24px; font-weight:bold; padding-bottom:4px; padding-right:2px;">↺</span>';
-            mostrarProgreso(e.message || 'Fallo al limpiar', '❌', '#ef4444');
+            mostrarProgreso(e.message || 'Fallo de conexión', '❌', '#ef4444');
             setTimeout(() => {
                 const cartel = document.getElementById('toast-reparacion');
                 if (cartel) {
@@ -1721,30 +1775,8 @@ function showNotification(message, msgId, type = 'info') {
             url.searchParams.append('timezone', timeZone);
 
             safeSendMessage({ action: 'proxy_fetch', url: url.toString(), options: { method: 'GET' } }, response => {
+                const res = (response && response.success) ? response.data : { success: false, message: response?.error || 'Error de conexión' };
                 
-                // 🔥 SOLUCIÓN: Blindaje de la variable 'res' para que NUNCA sea undefined
-                let res = { success: false, message: "Error desconocido" };
-
-                if (response && response.success && response.data) {
-                    // Si la PC o antivirus interceptó la señal y devolvió texto/HTML en lugar de JSON
-                    if (typeof response.data === 'string') {
-                        try {
-                            res = JSON.parse(response.data);
-                        } catch (e) {
-                            res.message = "Red bloqueada (Revisa Antivirus o Firewall en esta PC)";
-                            console.error("Respuesta bloqueada interceptada:", response.data);
-                        }
-                    } else {
-                        res = response.data;
-                    }
-                } else {
-                    // Captura errores reales de conexión de Chrome
-                    res.message = (response && response.error) ? response.error : 'Error de red local en esta PC';
-                }
-
-                // Garantizamos que siempre exista un texto
-                const mensajeFinal = res.message || "Error interno (Ver consola)";
-
                 if (res.forceUpdate) {
                     const isMacMsg = navigator.userAgent.toUpperCase().indexOf('MAC OS') >= 0 || (navigator.userAgentData && navigator.userAgentData.platform === 'macOS');
                     msgBox.innerText = `⚠️ ACTUALIZACIÓN REQUERIDA. USA ${isMacMsg ? '⌘' : 'CTRL'}+SHIFT+Z`; 
@@ -1850,15 +1882,11 @@ function showNotification(message, msgId, type = 'info') {
                             </div>
                         `;
                     } else {
-                        // Comportamiento normal de error (BLINDADO)
-                        const mensajeFinal = res.message || "Error interno o red bloqueada";
-                        msgBox.innerText = '❌ ' + mensajeFinal; 
-                        msgBox.style.color = '#ff6b6b';
+                        // Comportamiento normal de error
+                        msgBox.innerText = '❌ ' + res.message; msgBox.style.color = '#ff6b6b';
 
-                        // 🔥 Ahora usamos mensajeFinal de forma segura para que no explote
-                        if (mensajeFinal.toLowerCase().includes('límite') || mensajeFinal.toLowerCase().includes('limite')) {
-                            if (!document.getElementById('btn-kill-limit')) {
-                                const btnKill = document.createElement('button');
+                        if (res.message.toLowerCase().includes('límite') || res.message.toLowerCase().includes('limite')) {
+                            if (!document.getElementById('btn-kill-limit')) {const btnKill = document.createElement('button');
                                 btnKill.id = 'btn-kill-limit';
                                 btnKill.innerHTML = '🗑️ BORRAR SESIONES ACTIVAS';
                                 Object.assign(btnKill.style, {
@@ -1870,6 +1898,7 @@ function showNotification(message, msgId, type = 'info') {
                                 btnKill.onmouseenter = () => { btnKill.style.backgroundColor = '#ef4444'; btnKill.style.color = 'white'; };
                                 btnKill.onmouseleave = () => { btnKill.style.backgroundColor = 'rgba(220, 38, 38, 0.15)'; btnKill.style.color = '#fca5a5'; };
                                 
+                                // 🔥 AQUÍ EMPIEZA LA LÓGICA CORREGIDA (CON TOKEN)
                                 btnKill.onclick = async () => {
                                     const kUser = userInput.inp.value.trim();
                                     const kPass = passInput.inp.value.trim();
@@ -1880,7 +1909,7 @@ function showNotification(message, msgId, type = 'info') {
                                     try {
                                         // 1. VERIFICAR CREDENCIALES
                                         const urlCheck = new URL(API_URL);
-                                        urlCheck.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9');
+                                        urlCheck.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9'); // 🔥 AGREGADO
                                         urlCheck.searchParams.append('action', 'login');
                                         urlCheck.searchParams.append('usuario', kUser);
                                         urlCheck.searchParams.append('contrasena', kPass);
@@ -1890,16 +1919,13 @@ function showNotification(message, msgId, type = 'info') {
                                             safeSendMessage({ action: 'proxy_fetch', url: urlCheck.toString(), options: { method: 'GET' } }, resolve);
                                         });
 
-                                        // 🔥 BLINDAJE EXTRA: Evita que crashee si la respuesta del servidor es texto/html
-                                        if (!checkRes || !checkRes.success || !checkRes.data) throw new Error('Error de conexión al verificar');
-                                        
-                                        const msgBorrado = checkRes.data.message || "";
-                                        if (checkRes.data.success === false && msgBorrado.includes('Credenciales')) throw new Error('Contraseña Mal');
+                                        if (!checkRes || !checkRes.success || !checkRes.data) throw new Error('Error de conexión');
+                                        if (checkRes.data.success === false && checkRes.data.message.includes('Credenciales')) throw new Error('Contraseña Mal');
 
                                         // 2. EJECUTAR EL BORRADO REAL
                                         btnKill.innerText = '🔥 Borrando...';
                                         const urlKK = new URL(API_URL);
-                                        urlKK.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9');
+                                        urlKK.searchParams.append('token', 'SST_V12_CORP_SECURE_2026_X9'); // 🔥 AGREGADO
                                         urlKK.searchParams.append('action','kill_all');
                                         urlKK.searchParams.append('usuario', kUser);
                                         
@@ -1911,7 +1937,7 @@ function showNotification(message, msgId, type = 'info') {
                                         
                                     } catch (e) {
                                         btnKill.innerText = '❌ Error'; 
-                                        msgBox.innerText = '⛔ ' + (e.message || "Fallo al borrar"); 
+                                        msgBox.innerText = '⛔ ' + e.message; 
                                         setTimeout(() => { btnKill.disabled=false; btnKill.innerText='🗑️ BORRAR SESIONES ACTIVAS'; }, 3000);
                                     }
                                 };
